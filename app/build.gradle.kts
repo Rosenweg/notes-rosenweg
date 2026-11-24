@@ -141,6 +141,7 @@ detekt {
 
 dependencies {
     implementation(libs.fossify.commons)
+    implementation(libs.rosenweg.cloud) // Rosenweg: Notizen in der Nextcloud
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.documentfile)
     implementation(libs.kotlinx.serialization.json)
