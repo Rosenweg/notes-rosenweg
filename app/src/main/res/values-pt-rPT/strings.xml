@@ -14,7 +14,7 @@
         <item quantity="many">%d itens assinalados</item>
         <item quantity="other"/>
     </plurals>
-    <string name="app_launcher_name">Notas</string>
+    <string name="app_launcher_name">Rosenweg Notas</string>
     <string name="widget_config">Obrigado por utilizar Fossify Notes.
 \nPara conhecer as outras aplicações Fossify, aceda a fossify.org.</string>
     <string name="cannot_share_empty_text">Não pode partilhar texto vazio</string>

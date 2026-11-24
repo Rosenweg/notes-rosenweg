@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_launcher_name">Σημείωση</string>
+    <string name="app_launcher_name">Rosenweg Σημείωση</string>
     <string name="cannot_share_empty_text">Αδύνατη η κοινή χρήση κενού κειμένου</string>
     <string name="new_note">Προσθήκη νέας σημείωσης</string>
     <string name="no_title">Δώστε όνομα στη σημείωσή σας</string>

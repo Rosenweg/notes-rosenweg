@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_launcher_name">Nótaí</string>
+    <string name="app_launcher_name">Rosenweg Nótaí</string>
     <string name="cannot_share_empty_text">Ní féidir téacs folamh a roinnt</string>
     <string name="no_title">Ainmnigh do nóta, le do thoil</string>
     <string name="delete_note">Scrios nóta</string>

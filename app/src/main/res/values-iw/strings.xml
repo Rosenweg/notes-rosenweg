@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_launcher_name">הערות</string>
+    <string name="app_launcher_name">Rosenweg הערות</string>
     <string name="cannot_share_empty_text">לא ניתן לשתף טקסט ריק</string>
     <string name="new_note">הוסף הערה חדשה</string>
     <string name="no_title">נא לתת שם להערה שלך</string>

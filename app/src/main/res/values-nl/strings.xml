@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_launcher_name">Notities</string>
+    <string name="app_launcher_name">Rosenweg Notities</string>
     <string name="cannot_share_empty_text">Kan geen lege notitie delen</string>
     <string name="new_note">Nieuwe notitie</string>
     <string name="no_title">Geef de notitie een naam</string>
