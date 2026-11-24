@@ -9,6 +9,7 @@ import ch.rosenweg4303.cloud.Hochladen
 import ch.rosenweg4303.cloud.NextcloudFehler
 import ch.rosenweg4303.cloud.WebDav
 import org.fossify.notes.extensions.notesDB
+import org.fossify.notes.extensions.parseChecklistItems
 import org.fossify.notes.models.Note
 import org.fossify.notes.models.NoteType
 import org.json.JSONObject
@@ -32,7 +33,13 @@ import java.util.Locale
  *   der anderen loeschen, ausser die andere wurde inzwischen geaendert
  *
  * Neue und bisherige Text-Notizen (ohne Datei, ohne Sperre) werden dabei zu
- * Dateien. Checklisten und gesperrte Notizen bleiben vorerst lokal.
+ * Dateien. Gesperrte Notizen bleiben lokal.
+ *
+ * Checklisten (24.11.2026) sind Markdown-Aufgabenlisten (<Titel>.md mit
+ * "- [ ] Punkt" / "- [x] Punkt"), wie sie die Nextcloud (Notizen, Text) als
+ * abhakbare Liste zeigt. Fossify speichert Checklisten als JSON in der
+ * Datenbank; die Spiegel-Datei wird aus der Checkliste geschrieben und
+ * Aenderungen von oben werden in die Checkliste uebernommen.
  */
 object NotizenAbgleich {
     const val ORDNER = "${Hochladen.PERSOENLICH}/Notizen"
@@ -51,9 +58,11 @@ object NotizenAbgleich {
         val dav = Ablage.webDav(ctx) ?: return false
         return try {
             val neuAngelegt = notizenZuDateien(ctx)
+            listenZuDateien(ctx)
             val geaendert = dateienAbgleichen(ctx, dav)
+            val listen = dateienZuListen(ctx)
             val neueNotizen = dateienZuNotizen(ctx)
-            neuAngelegt || geaendert || neueNotizen
+            neuAngelegt || geaendert || listen || neueNotizen
         } catch (e: Exception) {
             Log.w(TAG, "Abgleich: $e")
             false
@@ -157,17 +166,135 @@ object NotizenAbgleich {
     // ---- 3. Spiegel-Dateien ohne Notiz bekommen eine ----
 
     private fun dateienZuNotizen(ctx: Context): Boolean {
-        val bekannt = ctx.notesDB.getNotes().map { File(it.path).absolutePath }.toSet()
+        val listen = listen(ctx)
+        val bekannt = ctx.notesDB.getNotes().map { File(it.path).absolutePath }.toSet() +
+            listen.keys().asSequence().map { File(spiegel(ctx), listen.getString(it)).absolutePath }
         var etwas = false
         (spiegel(ctx).listFiles() ?: emptyArray())
             .filter { it.isFile && endung(it.name) in ENDUNGEN && it.absolutePath !in bekannt }
             .forEach {
-                ctx.notesDB.insertOrUpdate(
-                    Note(null, titel(ctx, it.nameWithoutExtension), "", NoteType.TYPE_TEXT, it.absolutePath, PROTECTION_NONE, "")
-                )
+                val aufgaben = if (endung(it.name) == "md") alsAufgaben(it.readText()) else null
+                if (aufgaben != null) {
+                    // Aufgabenliste aus der Nextcloud -> Checkliste
+                    val id = ctx.notesDB.insertOrUpdate(
+                        Note(null, titel(ctx, it.nameWithoutExtension), aufgabenJson(aufgaben, emptyList()),
+                            NoteType.TYPE_CHECKLIST, "", PROTECTION_NONE, "")
+                    )
+                    listen.put(id.toString(), it.name)
+                    listenSpeichern(ctx, listen)
+                } else {
+                    ctx.notesDB.insertOrUpdate(
+                        Note(null, titel(ctx, it.nameWithoutExtension), "", NoteType.TYPE_TEXT, it.absolutePath, PROTECTION_NONE, "")
+                    )
+                }
                 etwas = true
             }
         return etwas
+    }
+
+    // ---- Checklisten <-> Markdown-Aufgabenlisten ----
+
+    private const val LISTEN = "rosenweg_notizen_listen"   // Notiz-ID -> Dateiname im Spiegel
+    private val AUFGABE = Regex("""^\s*[-*+]\s+\[( |x|X)\]\s?(.*)$""")
+
+    private fun listen(ctx: Context): JSONObject = try {
+        JSONObject(ctx.getSharedPreferences(LISTEN, Context.MODE_PRIVATE).getString("listen", "{}")!!)
+    } catch (e: Exception) {
+        JSONObject()
+    }
+
+    private fun listenSpeichern(ctx: Context, j: JSONObject) {
+        ctx.getSharedPreferences(LISTEN, Context.MODE_PRIVATE).edit().putString("listen", j.toString()).apply()
+    }
+
+    private fun markdown(tasks: List<org.fossify.notes.models.Task>): String =
+        tasks.joinToString("") { "- [${if (it.isDone) "x" else " "}] ${it.title.replace("\n", " ")}\n" }
+
+    /** Nur Aufgabenzeilen (und Leerzeilen)? Dann (erledigt, Text) je Zeile, sonst null. */
+    private fun alsAufgaben(text: String): List<Pair<Boolean, String>>? {
+        val zeilen = text.lines().filter { it.isNotBlank() }
+        if (zeilen.isEmpty()) return null
+        return zeilen.map { z ->
+            val m = AUFGABE.matchEntire(z) ?: return null
+            Pair(m.groupValues[1].isNotBlank(), m.groupValues[2].trim())
+        }
+    }
+
+    /** Freier Text in der Datei (jemand hat oben umgeschrieben): jede Zeile wird ein Punkt. */
+    private fun alsAufgabenLocker(text: String): List<Pair<Boolean, String>> =
+        text.lines().filter { it.isNotBlank() }.map { z ->
+            AUFGABE.matchEntire(z)?.let { Pair(it.groupValues[1].isNotBlank(), it.groupValues[2].trim()) }
+                ?: Pair(false, z.trim().removePrefix("- ").removePrefix("* "))
+        }
+
+    /** Kennungen bleiben bei gleichem Text erhalten (Fossify merkt sich daran z.B. die Reihenfolge). */
+    private fun aufgabenJson(neu: List<Pair<Boolean, String>>, alt: List<org.fossify.notes.models.Task>): String {
+        val frei = alt.toMutableList()
+        var naechste = (alt.maxOfOrNull { it.id } ?: 0) + 1
+        val jetzt = System.currentTimeMillis()
+        val tasks = neu.map { (erledigt, text) ->
+            val t = frei.firstOrNull { it.title == text }
+            if (t != null) {
+                frei.remove(t)
+                t.copy(isDone = erledigt)
+            } else {
+                org.fossify.notes.models.Task(naechste++, jetzt, text, erledigt)
+            }
+        }
+        return com.google.gson.Gson().toJson(tasks)
+    }
+
+    private fun aufgabenVon(n: Note) = n.value.parseChecklistItems() ?: arrayListOf()
+
+    /** Vor dem Abgleich: jede Checkliste in ihre Spiegel-Datei schreiben (nur wenn anders). */
+    private fun listenZuDateien(ctx: Context) {
+        val listen = listen(ctx)
+        val notizen = ctx.notesDB.getNotes().associateBy { it.id }
+        for (n in notizen.values) {
+            if (n.type != NoteType.TYPE_CHECKLIST || n.isLocked()) continue
+            val name = listen.optString(n.id.toString()).ifEmpty { freieDatei(ctx, listenname(n.title)).name }
+            listen.put(n.id.toString(), name)
+            val f = File(spiegel(ctx), name)
+            val text = markdown(aufgabenVon(n))
+            if (!f.exists() || f.readText() != text) f.writeText(text)
+        }
+        // hier geloeschte Checklisten: Datei weg, der Abgleich loescht sie dann auch oben
+        for (id in listen.keys().asSequence().toList()) {
+            if (notizen[id.toLongOrNull()] == null) {
+                File(spiegel(ctx), listen.getString(id)).delete()
+                listen.remove(id)
+            }
+        }
+        listenSpeichern(ctx, listen)
+    }
+
+    /** Nach dem Abgleich: Aenderungen von oben in die Checklisten uebernehmen. */
+    private fun dateienZuListen(ctx: Context): Boolean {
+        val listen = listen(ctx)
+        var etwas = false
+        for (id in listen.keys().asSequence().toList()) {
+            val n = id.toLongOrNull()?.let { ctx.notesDB.getNoteWithId(it) } ?: continue
+            val f = File(spiegel(ctx), listen.getString(id))
+            if (!f.exists()) {   // in der Nextcloud geloescht
+                ctx.notesDB.deleteNote(n)
+                listen.remove(id)
+                etwas = true
+                continue
+            }
+            val text = f.readText()
+            val alt = aufgabenVon(n)
+            if (text == markdown(alt)) continue
+            n.value = aufgabenJson(alsAufgaben(text) ?: alsAufgabenLocker(text), alt)
+            ctx.notesDB.insertOrUpdate(n)
+            etwas = true
+        }
+        listenSpeichern(ctx, listen)
+        return etwas
+    }
+
+    private fun listenname(titel: String): String {
+        val n = titel.replace(Regex("[/\\\\:*?\"<>|]"), "_").trim().ifEmpty { "Liste" }
+        return "$n.md"
     }
 
     // ---- Hilfen ----
