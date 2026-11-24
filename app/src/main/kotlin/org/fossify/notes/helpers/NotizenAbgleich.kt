@@ -84,7 +84,11 @@ object NotizenAbgleich {
             if (e.code != 404) throw e
             dav.ordnerSicherstellen(ORDNER)
             emptyList()
-        }.filter { !it.istOrdner && endung(it.name) in ENDUNGEN }.associateBy { it.name }
+        }.filter { !it.istOrdner && endung(it.name) in ENDUNGEN }
+            // Einzeln abfragen: nur so prueft die Nextcloud eine Datei neu, die am CephFS
+            // vorbei geaendert wurde (Samba/Windows) - beim Auflisten des Ordners nicht
+            .mapNotNull { e -> try { dav.eigenschaften(e.pfad) ?: e } catch (x: NextcloudFehler) { e } }
+            .associateBy { it.name }
 
         val dir = spiegel(ctx)
         val hier = (dir.listFiles() ?: emptyArray()).filter { it.isFile && endung(it.name) in ENDUNGEN }.associateBy { it.name }
