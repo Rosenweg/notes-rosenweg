@@ -5,12 +5,14 @@
     <ID>ComplexCondition:TextFragment.kt$TextFragment$config.showKeyboard &amp;&amp; isMenuVisible &amp;&amp; (!note!!.isLocked() || shouldShowLockedContent)</ID>
     <ID>CyclomaticComplexMethod:MainActivity.kt$MainActivity$private fun refreshMenuItems()</ID>
     <ID>CyclomaticComplexMethod:MainActivity.kt$MainActivity$private fun setupOptionsMenu()</ID>
+    <ID>CyclomaticComplexMethod:NotizenAbgleich.kt$NotizenAbgleich$private fun dateienAbgleichen(ctx: Context, dav: WebDav): Boolean</ID>
     <ID>CyclomaticComplexMethod:TextFragment.kt$TextFragment$@SuppressLint("ClickableViewAccessibility") private fun setupFragment()</ID>
     <ID>EmptyCatchBlock:String.kt${ }</ID>
     <ID>EmptyFunctionBlock:OpenNoteAdapter.kt$OpenNoteAdapter${}</ID>
     <ID>EmptyFunctionBlock:TasksAdapter.kt$TasksAdapter${}</ID>
     <ID>EmptyFunctionBlock:WidgetAdapter.kt$WidgetAdapter${}</ID>
     <ID>LargeClass:MainActivity.kt$MainActivity : SimpleActivity</ID>
+    <ID>LoopWithTooManyJumpStatements:NotizenAbgleich.kt$NotizenAbgleich$for</ID>
     <ID>MagicNumber:AutomaticBackupReceiver.kt$AutomaticBackupReceiver$3000</ID>
     <ID>MagicNumber:Config.kt$Config$100</ID>
     <ID>MagicNumber:Constants.kt$6</ID>
@@ -20,9 +22,12 @@
     <ID>MagicNumber:MainActivity.kt$MainActivity$250</ID>
     <ID>MagicNumber:MainActivity.kt$MainActivity$255</ID>
     <ID>MagicNumber:MainActivity.kt$MainActivity$50</ID>
+    <ID>MagicNumber:MainActivity.kt$MainActivity$5000</ID>
     <ID>MagicNumber:NotesDatabase.kt$NotesDatabase.Companion.&lt;no name provided&gt;$3</ID>
     <ID>MagicNumber:NotesDatabase.kt$NotesDatabase.Companion.&lt;no name provided&gt;$4</ID>
     <ID>MagicNumber:NotesHelper.kt$NotesHelper$200</ID>
+    <ID>MagicNumber:NotizenAbgleich.kt$NotizenAbgleich$404</ID>
+    <ID>MagicNumber:NotizenAbgleich.kt$NotizenAbgleich$412</ID>
     <ID>MagicNumber:Task.kt$CompletedTasks$42</ID>
     <ID>MagicNumber:TextFragment.kt$TextFragment$.4f</ID>
     <ID>MagicNumber:WidgetConfigureActivity.kt$WidgetConfigureActivity$100</ID>
@@ -54,11 +59,16 @@
     <ID>MaxLineLength:NotesDatabase.kt$NotesDatabase.Companion.&lt;no name provided&gt;$execSQL("ALTER TABLE widgets ADD COLUMN widget_bg_color INTEGER NOT NULL DEFAULT $defaultWidgetBgColor")</ID>
     <ID>MaxLineLength:NotesDatabase.kt$NotesDatabase.Companion.&lt;no name provided&gt;$execSQL("ALTER TABLE widgets ADD COLUMN widget_text_color INTEGER NOT NULL DEFAULT $DEFAULT_WIDGET_TEXT_COLOR")</ID>
     <ID>MaxLineLength:NotesPagerAdapter.kt$NotesPagerAdapter$class</ID>
+    <ID>MaxLineLength:NotizenAbgleich.kt$NotizenAbgleich$!hierNeu &amp;&amp; obenNeu -&gt; { laden(dav, pfad, l); merken(stand, name, r.etag, l); lokalGeaendert = true }</ID>
+    <ID>MaxLineLength:NotizenAbgleich.kt$NotizenAbgleich$Note(null, titel(ctx, it.nameWithoutExtension), "", NoteType.TYPE_TEXT, it.absolutePath, PROTECTION_NONE, "")</ID>
+    <ID>MaxLineLength:NotizenAbgleich.kt$NotizenAbgleich$val hier = (dir.listFiles() ?: emptyArray()).filter { it.isFile &amp;&amp; endung(it.name) in ENDUNGEN }.associateBy { it.name }</ID>
+    <ID>MaxLineLength:NotizenAbgleich.kt$NotizenAbgleich$val neu = dav.hochladen(pfad, { l.inputStream() }, l.length(), "text/plain", l.lastModified(), wennEtag = etag, nurNeu = etag == null)</ID>
     <ID>MaxLineLength:OpenFileDialog.kt$OpenFileDialog$class</ID>
     <ID>MaxLineLength:OpenFileDialog.kt$OpenFileDialog$val updateFileOnEdit = binding.openFileType.checkedRadioButtonId == binding.openFileUpdateFile.id</ID>
     <ID>MaxLineLength:OpenNoteAdapter.kt$OpenNoteAdapter$iconLock.setImageDrawable(activity.resources.getColoredDrawableWithColor(org.fossify.commons.R.drawable.ic_lock_vector, properPrimaryColor))</ID>
     <ID>MaxLineLength:OpenNoteDialog.kt$OpenNoteDialog$binding.dialogOpenNoteList.layoutManager = AutoStaggeredGridLayoutManager(noteItemWidth, StaggeredGridLayoutManager.VERTICAL)</ID>
     <ID>MaxLineLength:RenameNoteDialog.kt$RenameNoteDialog$class</ID>
+    <ID>MaxLineLength:RenameNoteDialog.kt$RenameNoteDialog$val newFile = File(file.parent, if (endung.isNotEmpty() &amp;&amp; !title.endsWith(".$endung")) "$title.$endung" else title)</ID>
     <ID>MaxLineLength:SettingsActivity.kt$SettingsActivity$NotesHelper.ImportResult.IMPORT_PARTIAL -&gt; toast(org.fossify.commons.R.string.importing_some_entries_failed)</ID>
     <ID>MaxLineLength:SettingsActivity.kt$SettingsActivity$binding.settingsUseEnglishHolder.beVisibleIf((config.wasUseEnglishToggled || Locale.getDefault().language != "en") &amp;&amp; !isTiramisuPlus())</ID>
     <ID>MaxLineLength:TasksAdapter.kt$TasksAdapter$private fun getSelectedItems()</ID>
@@ -77,23 +87,28 @@
     <ID>MaxLineLength:WidgetConfigureActivity.kt$WidgetConfigureActivity$val sampleValue = if (note.value.isEmpty() || mIsCustomizingColors) getString(R.string.widget_config) else note.value</ID>
     <ID>NestedBlockDepth:MainActivity.kt$MainActivity$private fun checkIntents(intent: Intent)</ID>
     <ID>NestedBlockDepth:Note.kt$Note$fun getNoteStoredValue(context: Context): String?</ID>
+    <ID>NestedBlockDepth:NotizenAbgleich.kt$NotizenAbgleich$private fun dateienAbgleichen(ctx: Context, dav: WebDav): Boolean</ID>
     <ID>NestedBlockDepth:TasksFragment.kt$TasksFragment$private fun prepareTaskItems(): List&lt;NoteItem&gt;</ID>
     <ID>SwallowedException:MainActivity.kt$MainActivity$e: ActivityNotFoundException</ID>
     <ID>SwallowedException:MainActivity.kt$MainActivity$e: Exception</ID>
     <ID>SwallowedException:MainActivity.kt$MainActivity$e: NetworkErrorException</ID>
     <ID>SwallowedException:Note.kt$Note$e: Exception</ID>
+    <ID>SwallowedException:NotizenAbgleich.kt$NotizenAbgleich$e: Exception</ID>
+    <ID>SwallowedException:NotizenAbgleich.kt$NotizenAbgleich$x: NextcloudFehler</ID>
     <ID>SwallowedException:String.kt$e: Exception</ID>
     <ID>SwallowedException:TasksFragment.kt$TasksFragment$e: Exception</ID>
     <ID>TooGenericExceptionCaught:Context.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MainActivity.kt$MainActivity$e: Exception</ID>
     <ID>TooGenericExceptionCaught:Note.kt$Note$e: Exception</ID>
     <ID>TooGenericExceptionCaught:NotesPagerAdapter.kt$NotesPagerAdapter$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:NotizenAbgleich.kt$NotizenAbgleich$e: Exception</ID>
     <ID>TooGenericExceptionCaught:SettingsActivity.kt$SettingsActivity$e: Exception</ID>
     <ID>TooGenericExceptionCaught:String.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:TasksFragment.kt$TasksFragment$e: Exception</ID>
     <ID>TooGenericExceptionCaught:TextFragment.kt$TextFragment$e: Exception</ID>
     <ID>TooManyFunctions:MainActivity.kt$MainActivity : SimpleActivity</ID>
     <ID>TooManyFunctions:NotesPagerAdapter.kt$NotesPagerAdapter : FragmentStatePagerAdapter</ID>
+    <ID>TooManyFunctions:NotizenAbgleich.kt$NotizenAbgleich</ID>
     <ID>TooManyFunctions:OpenNoteAdapter.kt$OpenNoteAdapter : MyRecyclerViewAdapter</ID>
     <ID>TooManyFunctions:SettingsActivity.kt$SettingsActivity : SimpleActivity</ID>
     <ID>TooManyFunctions:TasksAdapter.kt$TasksAdapter : MyRecyclerViewListAdapterItemTouchHelperContract</ID>
