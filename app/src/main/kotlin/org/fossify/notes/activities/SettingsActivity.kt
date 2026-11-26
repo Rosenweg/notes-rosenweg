@@ -91,6 +91,7 @@ class SettingsActivity : SimpleActivity() {
         setupCustomizeColors()
         setupUseEnglish()
         setupLanguage()
+        setupNextcloud()
         setupAutosaveNotes()
         setupDisplaySuccess()
         setupClickableLinks()
@@ -153,6 +154,19 @@ class SettingsActivity : SimpleActivity() {
                 }
             }
         }
+
+    /** Rosenweg: Anmeldung an der Nextcloud, damit Notizen dort liegen. */
+    private fun setupNextcloud() {
+        val konto = ch.rosenweg4303.cloud.KontoSpeicher(this).laden()
+        binding.settingsNextcloud.text = if (konto == null) {
+            getString(R.string.rw_nextcloud_aus)
+        } else {
+            getString(R.string.rw_nextcloud_an, konto.benutzer)
+        }
+        binding.settingsNextcloudHolder.setOnClickListener {
+            startActivity(android.content.Intent(this, ch.rosenweg4303.cloud.AnmeldenActivity::class.java))
+        }
+    }
 
     private fun setupCustomizeColors() {
         binding.settingsColorCustomizationHolder.setOnClickListener {

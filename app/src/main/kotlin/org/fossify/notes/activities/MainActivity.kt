@@ -1,5 +1,6 @@
 package org.fossify.notes.activities
 
+import org.fossify.notes.helpers.NotizenAbgleich
 import android.accounts.NetworkErrorException
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
@@ -184,6 +185,11 @@ class MainActivity : SimpleActivity() {
         val hasNoIntent = intent.action.isNullOrEmpty() && noteToOpen == -1L
 
         checkWhatsNewDialog()
+        // Rosenweg: Hinweis beim ersten Start, persoenliche Einstellungen aus der Nextcloud
+        if (savedInstanceState == null) {
+            ch.rosenweg4303.cloud.Hinweis.beimErstenStart(this, "Deine Notizen")
+            ch.rosenweg4303.cloud.Einstellungen.abgleichen(this) { recreate() }
+        }
         checkIntents(intent)
 
         storeStateVariables()
@@ -209,6 +215,7 @@ class MainActivity : SimpleActivity() {
                 initViewPager()
             }
         }
+        rosenwegAbgleich()
 
         refreshMenuItems()
         binding.pagerTabStrip.apply {
@@ -238,12 +245,44 @@ class MainActivity : SimpleActivity() {
     override fun onPause() {
         super.onPause()
         storeStateVariables()
+        // Rosenweg: Aenderungen beim Verlassen in die Nextcloud
+        val app = applicationContext
+        ensureBackgroundThread { NotizenAbgleich.abgleichen(app) }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         if (!isChangingConfigurations) {
             NotesDatabase.destroyInstance()
+        }
+    }
+
+    // ---- Rosenweg: Notizen in der Nextcloud ----
+
+    private val abgleichHand = android.os.Handler(android.os.Looper.getMainLooper())
+    private val abgleichLauf = Runnable {
+        val app = applicationContext
+        ensureBackgroundThread { NotizenAbgleich.abgleichen(app) }
+    }
+
+    /** Nach dem Speichern: 5 s Ruhe, dann hochladen. */
+    private fun spaeterAbgleichen() {
+        abgleichHand.removeCallbacks(abgleichLauf)
+        abgleichHand.postDelayed(abgleichLauf, 5000)
+    }
+
+    private fun rosenwegAbgleich() {
+        ensureBackgroundThread {
+            if (NotizenAbgleich.abgleichen(applicationContext)) {
+                runOnUiThread {
+                    if (isDestroyed) return@runOnUiThread
+                    val id = if (::mCurrentNote.isInitialized) mCurrentNote.id else null
+                    NotesHelper(this).getNotes {
+                        mNotes = it
+                        initViewPager(id)
+                    }
+                }
+            }
         }
     }
 
@@ -1177,6 +1216,19 @@ class MainActivity : SimpleActivity() {
         showSuccessToasts: Boolean,
         callback: ((success: Boolean) -> Unit)? = null,
     ) {
+        // Rosenweg: Spiegel der Nextcloud-Notizen ist app-privat - direkt schreiben, kurz danach abgleichen
+        if (NotizenAbgleich.istSpiegel(this, path)) {
+            try {
+                File(path).writeText(content)
+                if (showSuccessToasts) noteSavedSuccessfully(title)
+                callback?.invoke(true)
+            } catch (e: Exception) {
+                showErrorToast(e)
+                callback?.invoke(false)
+            }
+            spaeterAbgleichen()
+            return
+        }
         if (path.startsWith("content://")) {
             exportNoteValueToUri(
                 uri = path.toUri(),
@@ -1377,6 +1429,24 @@ class MainActivity : SimpleActivity() {
     }
 
     private fun doDeleteNote(note: Note, deleteFile: Boolean) {
+        // Rosenweg: Nextcloud-Notizen selbst loeschen (Datei im Spiegel weg -> Abgleich loescht oben).
+        // Nicht ueber refreshNotes(deleteFile), das loescht die Datei der naechsten Notiz.
+        if (NotizenAbgleich.istSpiegel(this, note.path)) {
+            ensureBackgroundThread {
+                File(note.path).delete()
+                notesDB.deleteNote(note)
+                widgetsDB.deleteNoteWidgets(note.id!!)
+                NotizenAbgleich.abgleichen(applicationContext)
+                runOnUiThread {
+                    NotesHelper(this).getNotes {
+                        mNotes = it
+                        if (it.isNotEmpty()) updateSelectedNote(it[0].id!!)
+                        initViewPager()
+                    }
+                }
+            }
+            return
+        }
         ensureBackgroundThread {
             val currentNoteIndex = mNotes.indexOf(note)
 

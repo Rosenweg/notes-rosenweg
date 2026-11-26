@@ -61,7 +61,9 @@ class RenameNoteDialog(val activity: SimpleActivity, val note: Note, val current
                     }
 
                     val file = File(path)
-                    val newFile = File(file.parent, title)
+                    // Rosenweg: Endung behalten (Notiz.txt bleibt eine Textdatei in der Nextcloud)
+                    val endung = file.extension
+                    val newFile = File(file.parent, if (endung.isNotEmpty() && !title.endsWith(".$endung")) "$title.$endung" else title)
                     if (!newFile.name.isAValidFilename()) {
                         activity.toast(org.fossify.commons.R.string.invalid_name)
                         return

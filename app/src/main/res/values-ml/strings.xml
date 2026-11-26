@@ -7,7 +7,7 @@
         <item quantity="other">%d പരിശോധിച്ച ഇനങ്ങൾ</item>
     </plurals>
     <string name="no_title">ദയവായി നിങ്ങളുടെ കുറിപ്പിന് പേര് നൽകുക</string>
-    <string name="app_launcher_name">കുറിപ്പുകൾ</string>
+    <string name="app_launcher_name">Rosenweg കുറിപ്പുകൾ</string>
     <string name="title_taken">ആ തലക്കെട്ടുള്ള ഒരു കുറിപ്പ് ഇതിനകം നിലവിലുണ്ട്</string>
     <string name="open_note">കുറിപ്പ് തുറക്കുക</string>
     <string name="delete_note">കുറിപ്പ് ഇല്ലാതാക്കുക</string>

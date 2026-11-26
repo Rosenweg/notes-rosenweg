@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_launcher_name">Noter</string>
+    <string name="app_launcher_name">Rosenweg Noter</string>
     <string name="cannot_share_empty_text">Kan ikke dele tom tekst</string>
     <string name="new_note">Tilføj en ny note</string>
     <string name="no_title">Navngiv din note</string>

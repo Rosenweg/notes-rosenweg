@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_launcher_name">Notoj</string>
+    <string name="app_launcher_name">Rosenweg Notoj</string>
     <string name="new_note">Krei novan noton</string>
     <string name="open_note">Malfermi noton</string>
     <string name="delete_note">Forviŝi noton</string>

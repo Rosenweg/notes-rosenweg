@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_launcher_name">الملاحظات</string>
+    <string name="app_launcher_name">Rosenweg الملاحظات</string>
     <string name="cannot_share_empty_text">لا يمكن مشاركة نص فارغ</string>
     <string name="new_note">إضافة ملاحظة</string>
     <string name="no_title">الرجاء تسمية الملاحظة</string>
