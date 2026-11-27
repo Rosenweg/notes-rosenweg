@@ -89,7 +89,9 @@ class SettingsActivity : SimpleActivity() {
         setupTopAppBar(binding.settingsAppbar, NavigationIcon.Arrow)
 
         setupCustomizeColors()
-        binding.settingsRwUpdatesHolder.setOnClickListener { ch.rosenweg4303.updater.RosenwegUpdater.jetztPruefen(this) }
+        binding.settingsRwUpdatesHolder.setOnClickListener {
+            ch.rosenweg4303.updater.RosenwegUpdater.jetztPruefen(this)
+        }
         setupUseEnglish()
         setupLanguage()
         setupNextcloud()
